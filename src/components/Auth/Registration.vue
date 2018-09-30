@@ -41,7 +41,8 @@
                 <v-btn 
                   color="primary"
                   @click="onSubmit"
-                  :disabled="!valid"
+                  :loading="loading"
+                  :disabled="!valid || loading"
                 >Create account</v-btn>
               </v-card-actions>
             </v-card>
@@ -64,12 +65,17 @@
         ],
         passwordRules: [
           v => !!v || 'Password is required',
-          v => (v && v.length>=6) || 'Password must be valid'
+          v => (v && v.length >= 6) || 'Password must be valid'
         ],
         confirmPasswordRules: [
           v => !!v || 'Password is required',
           v => v === this.password || 'Password should match'
         ]
+      }
+    },
+    computed: {
+      loading () {
+        return this.$store.getters.loading
       }
     },
     methods: {
@@ -79,7 +85,10 @@
             email: this.email,
             password: this.password
           }
-          console.log(user);
+          this.$store.dispatch('registerUser', user)
+          .then(() => this.$router.push('/'))
+          .catch(err => { console.log(err) })
+          console.log(user)
         }
       }
     }

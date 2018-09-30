@@ -54,7 +54,7 @@
         ],
         passwordRules: [
           v => !!v || 'Password is required',
-          v => (v && v.length>=6) || 'Password must be valid'
+          v => (v && v.length >= 6) || 'Password must be valid'
         ]
       }
     },
@@ -65,7 +65,7 @@
             email: this.email,
             password: this.password
           }
-          console.log(user);
+          console.log(user)
         }
       }
     }
