@@ -23,14 +23,21 @@
         </v-form>
         <v-layout row mb-3>
           <v-flex xs12>
-            <v-btn class="warning">Upload
+            <v-btn class="warning" @click="triggerUpload">Upload
               <v-icon right dark>cloud_upload</v-icon>
-            </v-btn>         
+            </v-btn> 
+            <input 
+              ref="fileInput" 
+              type="file" 
+              style="display: none;" 
+              accept="image/*"
+              @change="onFileChange"
+              >        
           </v-flex>        
         </v-layout>
         <v-layout row>
           <v-flex xs12>
-            <img src="" height="100px" >
+            <img :src="imageSrc" height="100px" v-if="imageSrc">
           </v-flex>
         </v-layout>
         <v-layout row>
@@ -45,7 +52,8 @@
         <v-layout row>
           <v-flex xs12>
             <v-btn 
-              :disabled="!valid"
+              :loading="loading"
+              :disabled="!valid || !image || loading"
               class="success" 
               @click="createAd"
             >Create Ad</v-btn>
@@ -63,21 +71,44 @@
         title: '',
         description: '',
         promo: false,
-        valid: false
+        valid: false,
+        image: null,
+        imageSrc: ''
+      }
+    },
+    computed: {
+      loading () {
+        return this.$store.getters.loading
       }
     },
     methods: {
       createAd () {
-        if (this.$refs.form.validate()) {
+        if (this.$refs.form.validate() && this.image) {
           // logic
           const ad = {
             title: this.title,
             description: this.description,
             promo: this.promo,
-            imageSrc: 'https://bariloche.org/english/wp-content/uploads/2017/04/hotel-llao-llao-verano-bariloche.jpg'
+            image: this.image
           }
           this.$store.dispatch('createAd', ad)
+            .then(() => {
+              this.$router.push('/list')
+            })
+            .catch((err) => { console.log(err) })
         }
+      },
+      triggerUpload () {
+        this.$refs.fileInput.click()
+      },
+      onFileChange (event) {
+        const file = event.target.files[0]
+        const reader = new FileReader()
+        reader.onload = e => {
+          this.imageSrc = reader.result
+        }
+        reader.readAsDataURL(file)
+        this.image = file
       }
     }
   }
